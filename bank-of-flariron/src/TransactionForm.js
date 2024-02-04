@@ -5,20 +5,37 @@ const TransactionForm = ({ onAdd }) => {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newTransaction = {
-      id: new Date().getTime(),
       description,
       amount,
       category,
     };
-    onAdd(newTransaction);
-    setDescription('');
-    setAmount('');
-    setCategory('');
+
+    try {
+      const response = await fetch('http://localhost:3000/transactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newTransaction),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add transaction');
+      }
+
+      const data = await response.json();
+      onAdd(data); // Update the UI with the new transaction
+      setDescription('');
+      setAmount('');
+      setCategory('');
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+    }
   };
+
 
   return (
     <form onSubmit={handleSubmit}>

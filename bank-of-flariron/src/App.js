@@ -16,6 +16,9 @@ const App = () => {
   const fetchData = async () => {
     try {
       const response = await fetch('http://localhost:3000/transactions');
+      if (!response.ok) {
+        throw new Error('Failed to fetch transactions');
+      }
       const data = await response.json();
       setTransactions(data);
       setFilteredTransactions(data);
@@ -35,11 +38,23 @@ const App = () => {
     setFilteredTransactions(filtered);
   };
 
-  const deleteTransaction = (id) => {
-    const updatedTransactions = filteredTransactions.filter(
-      (transaction) => transaction.id !== id
-    );
-    setFilteredTransactions(updatedTransactions);
+  const deleteTransaction = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/transactions/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete transaction');
+      }
+
+      const updatedTransactions = filteredTransactions.filter(
+        (transaction) => transaction.id !== id
+      );
+      setFilteredTransactions(updatedTransactions);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+    }
   };
 
   return (

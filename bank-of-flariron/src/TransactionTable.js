@@ -7,7 +7,7 @@ const TransactionTable = ({ transactions, onDelete }) => {
       <thead>
         <tr>
           <th>Description</th>
-          <th>Amount</th>
+          <th>Amount ($)</th>
           <th>Category</th>
           <th>Action</th>
         </tr>
