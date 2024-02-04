@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import TransactionTable from './TransactionTable';
 import TransactionForm from './TransactionForm';
 import SearchBar from './SearchBar';
+import './App.css';
 
 const App = () => {
   const [transactions, setTransactions] = useState([]);
@@ -42,8 +43,8 @@ const App = () => {
   };
 
   return (
-    <div>
-      <h1 id='transactions'>Bank Transactions</h1>
+    <div className='container'>
+      <h1 >BANK TRANSACTIONS</h1>
       <SearchBar onSearch={handleSearch} />
       <TransactionTable
         transactions={filteredTransactions}
