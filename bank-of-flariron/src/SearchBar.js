@@ -1,24 +1,25 @@
-// SearchBar.js
 import React, { useState } from 'react';
 
 const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleSearch = () => {
-    onSearch(searchTerm);
-  };
+  const [term, setTerm] = useState('');
 
   return (
-    <div>
-      <label>
-        Search:
+    <div className="mb-6">
+      <label className="block mb-2 font-medium text-gray-700">Search</label>
+      <div className="flex gap-2">
         <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded"
+          value={term}
+          onChange={e => setTerm(e.target.value)}
+          placeholder="description…"
         />
-      </label>
-      <button onClick={handleSearch}>Search</button>
+        <button
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          onClick={() => onSearch(term)}
+        >
+          Search
+        </button>
+      </div>
     </div>
   );
 };

@@ -1,73 +1,73 @@
-// App.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import SearchBar from './SearchBar';
 import TransactionTable from './TransactionTable';
 import TransactionForm from './TransactionForm';
-import SearchBar from './SearchBar';
-import './App.css';
+import LatestTransactions from './LatestTransactions';
 
-const App = () => {
+function App() {
   const [transactions, setTransactions] = useState([]);
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
+  const [filtered, setFiltered]      = useState([]);
+  const [latest, setLatest]          = useState([]);
 
+  /** 1.  Load db.json on mount */
   useEffect(() => {
-    fetchData();
+    fetch('/db.json')
+      .then(r => r.json())
+      .then(({ transactions }) => {
+        const sorted = [...transactions].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        );
+        setTransactions(sorted);
+        setFiltered(sorted);
+        setLatest(sorted.slice(0, 5));
+      })
+      .catch(console.error);
   }, []);
 
-  const fetchData = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/transactions');
-      if (!response.ok) {
-        throw new Error('Failed to fetch transactions');
-      }
-      const data = await response.json();
-      setTransactions(data);
-      setFilteredTransactions(data);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-
-  const addTransaction = (newTransaction) => {
-    setFilteredTransactions([...filteredTransactions, newTransaction]);
-  };
-
-  const handleSearch = (searchTerm) => {
-    const filtered = transactions.filter((transaction) =>
-      transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+  /** 2.  Search */
+  const handleSearch = term => {
+    const list = transactions.filter(t =>
+      t.description.toLowerCase().includes(term.toLowerCase())
     );
-    setFilteredTransactions(filtered);
+    setFiltered(list);
   };
 
-  const deleteTransaction = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:3000/transactions/${id}`, {
-        method: 'DELETE',
-      });
+  /** 3.  Add */
+  const addTransaction = tx => {
+    const newTx = { id: Date.now(), ...tx };       // temp id
+    const updated = [newTx, ...transactions].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+    setTransactions(updated);
+    setFiltered(updated);
+    setLatest(updated.slice(0, 5));
+  };
 
-      if (!response.ok) {
-        throw new Error('Failed to delete transaction');
-      }
-
-      const updatedTransactions = filteredTransactions.filter(
-        (transaction) => transaction.id !== id
-      );
-      setFilteredTransactions(updatedTransactions);
-    } catch (error) {
-      console.error('Error deleting transaction:', error);
-    }
+  /** 4.  Delete */
+  const deleteTransaction = id => {
+    const updated = transactions.filter(t => t.id !== id);
+    setTransactions(updated);
+    setFiltered(updated);
+    setLatest(updated.slice(0, 5));
   };
 
   return (
-    <div className='container'>
-      <h1 >BANK TRANSACTIONS</h1>
+    <div className="max-w-4xl mx-auto p-6 mt-10 bg-white shadow-xl rounded-xl">
+      <h1 className="text-3xl font-bold text-center mb-6 text-blue-700">
+        Bank Transactions
+      </h1>
+
       <SearchBar onSearch={handleSearch} />
+      <LatestTransactions transactions={latest} />
+
       <TransactionTable
-        transactions={filteredTransactions}
+        transactions={filtered}
         onDelete={deleteTransaction}
       />
+
       <TransactionForm onAdd={addTransaction} />
     </div>
   );
-};
+}
 
 export default App;
